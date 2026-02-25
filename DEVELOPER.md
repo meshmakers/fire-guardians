@@ -13,7 +13,7 @@ Fire Guardians is a Progressive Web Application (PWA) for reporting and tracking
 2. [Technology Stack](#technology-stack)
 3. [Project Structure](#project-structure)
 4. [Backend (ASP.NET Core)](#backend-aspnet-core)
-5. [Frontend (Angular 19)](#frontend-angular-19)
+5. [Frontend (Angular 21)](#frontend-angular-21)
 6. [Construction Kit Data Model](#construction-kit-data-model)
 7. [GraphQL API](#graphql-api)
 8. [Authentication & Authorization](#authentication--authorization)
@@ -35,7 +35,7 @@ Fire Guardians follows a **full-stack SPA architecture** with a clear separation
 ┌─────────────────────────────────────────────────────────────────┐
 │                        Browser / PWA                            │
 │  ┌───────────────────────────────────────────────────────────┐  │
-│  │  Angular 19 SPA (Standalone Components)                   │  │
+│  │  Angular 21 SPA (Standalone Components)                   │  │
 │  │  ┌─────────────┐  ┌──────────────┐  ┌─────────────────┐   │  │
 │  │  │ Google Maps │  │ Apollo Client│  │ Service Worker  │   │  │
 │  │  │ (Map View)  │  │ (GraphQL)    │  │ (Push + Cache)  │   │  │
@@ -83,15 +83,15 @@ Fire Guardians follows a **full-stack SPA architecture** with a clear separation
 
 | Technology | Version | Purpose |
 |---|---|---|
-| Angular | 19.2.x | SPA framework (standalone components) |
-| TypeScript | 5.8.x | Language |
-| Angular Material | 19.2.x | UI component library |
-| Apollo Angular | 10.0.x | GraphQL client |
-| angular-oauth2-oidc | 19.0.x | OAuth 2.0 / OIDC authentication |
+| Angular | 21.x | SPA framework (standalone components, signals) |
+| TypeScript | 5.9.x | Language |
+| Angular Material | 21.x | UI component library |
+| Apollo Angular | 13.x | GraphQL client |
+| angular-oauth2-oidc | 20.x | OAuth 2.0 / OIDC authentication |
 | Google Maps JS API | — | Interactive map rendering |
-| @angular/google-maps | 19.2.x | Angular wrapper for Google Maps |
+| @angular/google-maps | 21.x | Angular wrapper for Google Maps |
 | RxJS | 7.8.x | Reactive programming |
-| Angular Service Worker | 19.2.x | PWA support (caching, push) |
+| Angular Service Worker | 21.x | PWA support (caching, push) |
 | @meshmakers/shared-auth | — | Shared authentication library |
 | @meshmakers/shared-services | — | Shared services library |
 | @meshmakers/shared-ui | — | Shared UI component library |
@@ -101,8 +101,8 @@ Fire Guardians follows a **full-stack SPA architecture** with a clear separation
 
 | Technology | Version | Purpose |
 |---|---|---|
-| ASP.NET Core | 9.0.x | Web host and API |
-| .NET | 9.0 | Runtime |
+| ASP.NET Core | 10.0.x | Web host and API |
+| .NET | 10.0 | Runtime |
 | Meshmakers.Octo.Sdk.ServiceClient | — | OctoMesh SDK for data access |
 | Lib.Net.Http.WebPush | 3.3.x | VAPID Web Push notifications |
 | NLog | 6.0.x | Structured logging |
@@ -112,8 +112,7 @@ Fire Guardians follows a **full-stack SPA architecture** with a clear separation
 
 | Tool | Purpose |
 |---|---|
-| Angular CLI | Frontend build tooling |
-| @angular-builders/custom-webpack | Custom webpack configuration |
+| Angular CLI | Frontend build tooling (esbuild) |
 | @graphql-codegen | TypeScript type generation from GraphQL |
 | Docker | Container builds (multi-stage) |
 | Azure Pipelines | CI/CD |
@@ -126,7 +125,7 @@ Fire Guardians follows a **full-stack SPA architecture** with a clear separation
 fire-guardians/
 ├── src/
 │   ├── FireGuardiansWebApp/                    # ASP.NET Core backend + SPA host
-│   │   ├── ClientApp/                          # Angular 19 frontend
+│   │   ├── ClientApp/                          # Angular 21 frontend
 │   │   │   ├── src/
 │   │   │   │   ├── app/
 │   │   │   │   │   ├── home/                   # Map view (main feature)
@@ -289,7 +288,7 @@ Loop (every 60s):
 
 ---
 
-## Frontend (Angular 19)
+## Frontend (Angular 21)
 
 ### Bootstrap & Initialization
 
@@ -302,7 +301,7 @@ bootstrapApplication(AppComponent, appConfig);
 
 The `appConfig` in `app.config.ts` registers all providers and runs the `initServices` initializer:
 
-1. `ConfigurationService.loadConfig()` — fetches `/_configuration` from the backend
+1. `ConfigurationService.loadConfigAsync()` — fetches `/_configuration` from the backend
 2. Configures OAuth options (issuer, scopes, redirect URIs, client ID)
 3. Configures OctoMesh service URLs
 4. `AuthorizeService.initialize()` — sets up OAuth 2.0 with code flow + PKCE
@@ -313,10 +312,10 @@ Defined in `app.routes.ts`:
 
 | Path | Component | Guard |
 |---|---|---|
-| `/` | `HomeComponent` | `AuthorizeGuard` |
-| `/report` | `CreateFireReportComponent` | `AuthorizeGuard` |
+| `/` | `HomeComponent` | `authorizeGuard` |
+| `/report` | `CreateFireReportComponent` | `authorizeGuard` |
 
-All routes are protected by `AuthorizeGuard`, which redirects unauthenticated users to the login flow.
+All routes are protected by the functional `authorizeGuard`, which redirects unauthenticated users to the login flow.
 
 ### Component Hierarchy
 
@@ -376,11 +375,11 @@ AppComponent
 
 ### HTTP Interceptors
 
-**`AuthorizeInterceptor`** (from `@meshmakers/shared-auth`)
+**`authorizeInterceptor`** (functional interceptor from `@meshmakers/shared-auth`)
 - Attaches JWT Bearer tokens to outgoing HTTP requests for authenticated API calls
 
-**`HttpErrorInterceptor`**
-- Catches HTTP errors, retries once, and propagates errors to the `MessageService` for user-facing feedback
+**`MmHttpErrorInterceptor`** (from `@meshmakers/shared-services`)
+- Catches HTTP errors and propagates errors to the `MessageService` for user-facing feedback
 
 ### GraphQL Integration
 
@@ -615,7 +614,7 @@ The frontend fetches all configuration dynamically from `GET /_configuration` at
 
 ### Prerequisites
 
-- .NET SDK 9.0+
+- .NET SDK 10.0+
 - Node.js 20.x+
 - npm 10.x+
 - Angular CLI (`npm install -g @angular/cli`)

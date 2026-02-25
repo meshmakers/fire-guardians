@@ -24,35 +24,37 @@ export class WalletService {
     const wallet = await this.getWallet();
     if (wallet) {
       await firstValueFrom(this.updateWalletLocation.mutate({
-        rtId: wallet.rtId, position: {latitude: homeCenter.lat, longitude: homeCenter.lng}
+        variables: {rtId: wallet.rtId, position: {latitude: homeCenter.lat, longitude: homeCenter.lng}}
       }));
     } else {
-      const u = await firstValueFrom(this.authorizeService.getUser());
+      const u = this.authorizeService.user();
       if (u) {
         const id = (<any>u).sub;
 
         await firstValueFrom(this.createWallet.mutate({
-          walletInput:
-            {
-              identityId: id,
-              name: u.name,
-              location:
-                {
-                  coordinates: {latitude: homeCenter.lat, longitude: homeCenter.lng}
-                }
-            }
+          variables: {
+            walletInput:
+              {
+                identityId: id,
+                name: u.name,
+                location:
+                  {
+                    coordinates: {latitude: homeCenter.lat, longitude: homeCenter.lng}
+                  }
+              }
+          }
         }));
       }
     }
   }
 
   async getWallet(): Promise<FireGuardiansWalletDto | null> {
-    const u = await firstValueFrom(this.authorizeService.getUser());
+    const u = this.authorizeService.user();
     if (u) {
       const id = (<any>u).sub;
 
-      const apolloQueryResult = await firstValueFrom(this.getWalletDtoGQL.fetch({identityId: id}));
-      if (apolloQueryResult.data.runtime?.fireGuardiansWallet?.items?.length) {
+      const apolloQueryResult = await firstValueFrom(this.getWalletDtoGQL.fetch({variables: {identityId: id}}));
+      if (apolloQueryResult.data?.runtime?.fireGuardiansWallet?.items?.length) {
         return apolloQueryResult.data.runtime?.fireGuardiansWallet.items[0];
       }
     }

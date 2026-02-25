@@ -16,7 +16,7 @@ Welcome to the official GitHub repository for [Fire Guardians](https://www.fire-
 The application consists of two main components:
 
 1. **Construction Kit Data Model** (`FireGuardiansCkModel`) — YAML-based schema definitions for the OctoMesh data platform, defining entity types for fire reports, user wallets, and notification subscriptions.
-2. **Web Application** (`FireGuardiansWebApp`) — An ASP.NET Core backend hosting an Angular 19 SPA. The frontend communicates with OctoMesh Asset Services directly via GraphQL (Apollo Angular). The backend provides configuration and runs a background service for push notifications.
+2. **Web Application** (`FireGuardiansWebApp`) — An ASP.NET Core backend hosting an Angular 21 SPA. The frontend communicates with OctoMesh Asset Services directly via GraphQL (Apollo Angular). The backend provides configuration and runs a background service for push notifications.
 
 For detailed architecture documentation, see [DEVELOPER.md](DEVELOPER.md).
 
@@ -24,8 +24,8 @@ For detailed architecture documentation, see [DEVELOPER.md](DEVELOPER.md).
 
 | Layer | Technologies |
 |---|---|
-| Frontend | Angular 19, TypeScript, Angular Material, Apollo Angular (GraphQL), Google Maps API, RxJS |
-| Backend | ASP.NET Core 9, .NET 9, OctoMesh SDK, Web Push (VAPID), NLog |
+| Frontend | Angular 21, TypeScript, Angular Material, Apollo Angular (GraphQL), Google Maps API, Angular Signals |
+| Backend | ASP.NET Core 10, .NET 10, OctoMesh SDK, Web Push (VAPID), NLog |
 | Data | OctoMesh Construction Kit (YAML schema), OctoMesh Asset Services (GraphQL) |
 | Auth | OAuth 2.0 / OIDC via OctoMesh Identity Service |
 | DevOps | Docker, Azure Pipelines |
@@ -34,10 +34,10 @@ For detailed architecture documentation, see [DEVELOPER.md](DEVELOPER.md).
 
 Before you begin, ensure you have the following installed:
 
-- .NET SDK 9.0+
+- .NET SDK 10.0+
 - Node.js 20.x or later
 - npm 10.x or later
-- Angular CLI 19.x (`npm install -g @angular/cli`)
+- Angular CLI 21.x (`npm install -g @angular/cli`)
 - A modern web browser to test the PWA
 
 ## Getting Started
@@ -88,7 +88,7 @@ The application will be available at `https://localhost:44486`. The ASP.NET Core
 fire-guardians/
 ├── src/
 │   ├── FireGuardiansWebApp/         # ASP.NET Core backend + Angular SPA
-│   │   ├── ClientApp/               # Angular 19 frontend
+│   │   ├── ClientApp/               # Angular 21 frontend
 │   │   ├── Controllers/             # Configuration endpoint
 │   │   ├── Services/                # Auth service, notification background service
 │   │   ├── Repository/              # Data access (FireReports, Wallets)

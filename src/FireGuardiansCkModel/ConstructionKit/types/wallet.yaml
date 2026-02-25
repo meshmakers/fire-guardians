@@ -1,14 +1,13 @@
 $schema: https://schemas.meshmakers.cloud/construction-kit-elements.schema.json
 types:
 - typeId: Wallet
-  derivedFromCkTypeId: Basic/NamedEntity
+  derivedFromCkTypeId: ${Basic}/NamedEntity
   attributes:
-  - id: ${thisModel}/IdentityId
+  - id: ${this}/IdentityId
     name: IdentityId
-  - id: ${thisModel}/Location
+  - id: ${this}/Location
     name: Location
     isOptional: true
-  - id: ${thisModel}/LastNotificationUpdate
+  - id: ${this}/LastNotificationUpdate
     name: LastNotificationUpdate
     isOptional: true
-    

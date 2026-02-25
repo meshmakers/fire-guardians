@@ -1,9 +1,6 @@
-export interface ConfigurationDto {
-  assetServices: string;
-  issuer: string;
-  clientId: string;
-  redirectUri: string;
-  postLogoutRedirectUri: string;
+import {AddInConfiguration} from "@meshmakers/octo-services";
+
+export interface ConfigurationDto extends AddInConfiguration {
   scope: string;
   tenantId: string;
   vapidPublicKey: string;

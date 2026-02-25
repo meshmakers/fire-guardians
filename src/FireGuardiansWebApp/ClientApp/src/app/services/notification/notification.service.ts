@@ -34,10 +34,10 @@ export class NotificationService {
       console.info('Received PushSubscription: ', JSON.stringify(subscription));
 
       // Ensure that we register the subscription only once
-      const r = await firstValueFrom(this.getWalletSubscriptionDtoGQL.fetch({walletRtId: wallet.rtId, endpoint: subscription.endpoint}));
+      const r = await firstValueFrom(this.getWalletSubscriptionDtoGQL.fetch({variables: {walletRtId: wallet.rtId, endpoint: subscription.endpoint}}));
       if (r){
-        const subscription = r.data.runtime?.fireGuardiansWallet?.items?.[0]?.children?.fireGuardiansNotificationSubscription?.items?.[0];
-        if (subscription) {
+        const existingSub = r.data?.runtime?.fireGuardiansWallet?.items?.[0]?.children?.fireGuardiansNotificationSubscription?.items?.[0];
+        if (existingSub) {
           this.messageService.showInformation("Notification subscription already exists. You are already subscribed to notifications.");
           return;
         }
@@ -46,9 +46,11 @@ export class NotificationService {
       const subscriptionJson = subscription.toJSON();
       if (subscriptionJson && subscriptionJson.keys && subscriptionJson.endpoint) {
         await firstValueFrom(this.createNotificationSubscriptionDtoGQL.mutate({
-          config: JSON.stringify(subscriptionJson.keys),
-          endpoint: subscriptionJson.endpoint,
-          parentWalletRtId: wallet.rtId
+          variables: {
+            config: JSON.stringify(subscriptionJson.keys),
+            endpoint: subscriptionJson.endpoint,
+            parentWalletRtId: wallet.rtId
+          }
         }))
 
       }
@@ -56,7 +58,7 @@ export class NotificationService {
       this.messageService.showInformation("Notification subscription successful");
 
     } catch (e) {
-      this.messageService.showError("Notification subscription failed. Please allow notifications in your browser settings.", "Notification Subscription Error");
+      this.messageService.showError("Notification subscription failed. Please allow notifications in your browser settings.");
     }
   }
 }

@@ -1,8 +1,8 @@
-import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, Signal, ViewChild} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
-import {BehaviorSubject, firstValueFrom, lastValueFrom, Observable, of} from "rxjs";
+import {BehaviorSubject, firstValueFrom, lastValueFrom} from "rxjs";
 import { HttpClient } from "@angular/common/http";
-import {AsyncPipe, CommonModule, NgOptimizedImage} from "@angular/common";
+import {AsyncPipe, CommonModule} from "@angular/common";
 import {GoogleMap, GoogleMapsModule} from "@angular/google-maps";
 import {LocationService} from "../services/location/location.service";
 import {Marker} from "../shared/marker";
@@ -13,7 +13,6 @@ import {GetFireReportsDtoGQL} from "../graphQL/getFireReports";
 import {CreateFireReportDtoGQL, CreateFireReportMutationVariablesDto} from "../graphQL/createFireReport";
 import {MatIcon} from "@angular/material/icon";
 import {AuthorizeService} from "@meshmakers/shared-auth";
-import {HOME} from "@angular/cdk/keycodes";
 import {WalletService} from "../services/wallet/wallet.service";
 
 @Component({
@@ -36,9 +35,7 @@ export class HomeComponent implements OnInit {
   protected isLoading: boolean = true;
   protected createFireReportEnabled: boolean = false;
   protected newMarkerOptions: google.maps.marker.AdvancedMarkerElementOptions = { gmpDraggable: true};
-  protected isAuthenticated: Observable<boolean>;
-
-  //protected markerOptions: google.maps.marker.AdvancedMarkerElementOptions = {gmpDraggable: false};
+  protected isAuthenticated: Signal<boolean>;
 
   constructor(private readonly httpClient: HttpClient,
               private readonly locationService: LocationService,
@@ -46,20 +43,18 @@ export class HomeComponent implements OnInit {
               private readonly messageService: MessageService,
               private readonly getFireReportsDtoGQL: GetFireReportsDtoGQL,
               private readonly createFireReportDtoGQL: CreateFireReportDtoGQL,
-              private readonly authorizeService: AuthorizeService,
+              protected readonly authorizeService: AuthorizeService,
               private readonly walletService: WalletService,
               private changeDetector: ChangeDetectorRef) {
 
     this.apiLoaded = new BehaviorSubject<boolean>(false);
-    this.center = {lat: 49.843, lng: 9.902056}; // 49.843, 9.902056
+    this.center = {lat: 49.843, lng: 9.902056};
     this.homeCenter = null;
     this.newCenter = {lat: 49.843, lng: 9.902056};
-    this.isAuthenticated = of(false);
+    this.isAuthenticated = this.authorizeService.isAuthenticated;
   }
 
   async ngOnInit(): Promise<void> {
-
-    this.isAuthenticated = this.authorizeService.getIsAuthenticated();
 
     try {
       const position = await this.locationService.getCurrentLocation();
@@ -100,14 +95,16 @@ export class HomeComponent implements OnInit {
       const c = bounds.getCenter();
       try {
         const r = await firstValueFrom(this.getFireReportsDtoGQL.fetch({
-          position: {
-            latitude: c.lat(),
-            longitude: c.lng()
-          },
-          maxDistance: dist / 2
+          variables: {
+            position: {
+              latitude: c.lat(),
+              longitude: c.lng()
+            },
+            maxDistance: dist / 2
+          }
         }));
         this.markerPositions = [];
-        r.data.runtime?.fireGuardiansFireReport?.items?.forEach((item) => {
+        r.data?.runtime?.fireGuardiansFireReport?.items?.forEach((item) => {
           if (item) {
             this.markerPositions.push(<Marker>
               {
@@ -167,11 +164,9 @@ export class HomeComponent implements OnInit {
 
   async confirmFireReport() : Promise<void> {
 
-    const confirmResult = await firstValueFrom(
-      this.confirmationService.showYesNoConfirmationDialog(
-        'Report fire',
-        `Do you really want to report fire at this location?`
-      )
+    const confirmResult = await this.confirmationService.showYesNoConfirmationDialog(
+      'Report fire',
+      `Do you really want to report fire at this location?`
     );
 
     if (confirmResult) {
@@ -183,7 +178,7 @@ export class HomeComponent implements OnInit {
         description: ""
       };
 
-      const r = await firstValueFrom(this.createFireReportDtoGQL.mutate(v));
+      const r = await firstValueFrom(this.createFireReportDtoGQL.mutate({variables: v}));
       const entity = r.data?.runtime?.fireGuardiansFireReports?.create?.at(0);
       if (entity) {
         this.markerPositions.push(<Marker>
@@ -207,6 +202,4 @@ export class HomeComponent implements OnInit {
   public login(): void {
     this.authorizeService.login();
   }
-
-  protected readonly HOME = HOME;
 }
