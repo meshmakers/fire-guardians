@@ -3,7 +3,7 @@ param (
 )
 
 if (!(Test-Path -Path $PSScriptRoot/../src/FireGuardiansCkModel/bin/$configuration/net10.0/octo-ck-libraries/FireGuardiansCkModel/out/ck-fireguardians.yaml)) {
-    Write-Host "Fire Guardians Construction Kit not found at $PSScriptRoot/../src/FireGuardiansCkModel//bin/$configuration/net10.0/octo-ck-libraries/FireGuardiansCkModel/out/ck-fireguardians.yaml"
+    Write-Host "Fire Guardians Construction Kit not found at $PSScriptRoot/../src/FireGuardiansCkModel/bin/$configuration/net10.0/octo-ck-libraries/FireGuardiansCkModel/out/ck-fireguardians.yaml"
     exit 1
 }
 

@@ -410,7 +410,7 @@ The Angular Service Worker (`ngsw-config.json`) provides:
 
 ## Construction Kit Data Model
 
-The OctoMesh Construction Kit defines the application's data schema in YAML. The model ID is `FireGuardians-1.0.0` with a dependency on `Basic-[1.0,)`.
+The OctoMesh Construction Kit defines the application's data schema in YAML. The model ID is `FireGuardians-1.0.0` with a dependency on `Basic-[2.0,3.0)`.
 
 ### Entity Types
 
