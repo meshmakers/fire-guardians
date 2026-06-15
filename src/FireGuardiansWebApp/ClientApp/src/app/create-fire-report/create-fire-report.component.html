@@ -1,6 +1,8 @@
 <div class="details-container">
   <div>
-    <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+    @if (loading) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
   </div>
   <mat-toolbar class="octo-toolbar">
     <div class="octo-spacer"></div>
@@ -25,4 +27,3 @@
     </div>
   </form>
 </div>
-

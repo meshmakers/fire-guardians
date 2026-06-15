@@ -1,14 +1,13 @@
 $schema: https://schemas.meshmakers.cloud/construction-kit-elements.schema.json
 types:
 - typeId: FireReport
-  derivedFromCkTypeId: Basic/NamedEntity
+  derivedFromCkTypeId: ${Basic}/NamedEntity
   attributes:
-  - id: ${thisModel}/Location
+  - id: ${this}/Location
     name: Location
-  - id: ${thisModel}/Image
+  - id: ${this}/Image
     name: Image
     isOptional: true
-  - id: ${thisModel}/InitialNotificationSent
+  - id: ${this}/InitialNotificationSent
     name: InitialNotificationSent
     isOptional: true
-   

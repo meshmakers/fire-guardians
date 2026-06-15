@@ -2836,7 +2836,6 @@ export type CkAttributeDto = {
   /** Optional description of the attribute. */
   description?: Maybe<Scalars['String']['output']>;
   /** Optional flag that tells if an attribute is a data stream. */
-  isDataStream?: Maybe<Scalars['Boolean']['output']>;
   /** Optional meta data of the attribute. */
   metaData?: Maybe<Array<Maybe<CkAttributeMetaDataDto>>>;
 };

@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import {ConfigurationDto} from "./configurationDto";
+import {IConfigurationService} from "@meshmakers/octo-services";
 
 @Injectable({
   providedIn: 'root'
 })
-export class ConfigurationService {
+export class ConfigurationService implements IConfigurationService {
   private configuration: ConfigurationDto;
 
   constructor() {
@@ -15,7 +16,7 @@ export class ConfigurationService {
     return this.configuration;
   }
 
-  public async loadConfig(): Promise<void> {
+  public async loadConfigAsync(): Promise<void> {
     console.debug('loading config');
 
     const result = await fetch(`/_configuration`);
