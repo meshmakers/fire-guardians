@@ -1,4 +1,4 @@
-import {Component, computed, EventEmitter, Output, Signal} from '@angular/core';
+import {Component, computed, EventEmitter, Output, Signal, ChangeDetectionStrategy} from '@angular/core';
 import {AuthorizeService} from "@meshmakers/shared-auth";
 import {ConfigurationService} from "../../services/configuration/configuration.service";
 import {MatToolbar} from "@angular/material/toolbar";
@@ -21,6 +21,7 @@ import {NotificationService} from "../../services/notification/notification.serv
     MatTooltip
   ],
   templateUrl: './header.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent {

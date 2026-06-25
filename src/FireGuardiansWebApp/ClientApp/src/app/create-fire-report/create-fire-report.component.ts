@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {MatProgressBar} from "@angular/material/progress-bar";
 import {MatToolbar} from "@angular/material/toolbar";
 import {MatButton} from "@angular/material/button";
@@ -25,6 +25,7 @@ import {MatIcon} from "@angular/material/icon";
     MatIcon
   ],
   templateUrl: './create-fire-report.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './create-fire-report.component.scss'
 })
 export class CreateFireReportComponent extends AbstractDetailsComponent<FireGuardiansFireReportDto> implements OnInit {
