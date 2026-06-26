@@ -18,7 +18,7 @@ public class ClientDto(string clientId, FireGuardiansOptions fireGuardiansOption
     public string PostLogoutRedirectUri { get; set; } = fireGuardiansOptions.PublicUrl.EnsureEndsWith("/");
 
     [JsonPropertyName("scope")] public string Scope { get; set; } = CommonConstants.GetScopes(
-        ApiScopes.AssetSystemApiFullAccess, null,
+        ApiScopes.OctoApiFullAccess, null,
         DefaultScopes.UserDefault | DefaultScopes.OfflineAccess);
 
     [JsonPropertyName("tenantId")] public string TenantId { get; set; } = fireGuardiansOptions.TenantId;
