@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import {MatSidenavModule} from "@angular/material/sidenav";
 import {FooterComponent} from "./navigation/footer/footer.component";
@@ -10,6 +10,7 @@ import {HeaderComponent} from "./navigation/header/header.component";
   standalone: true,
   imports: [RouterOutlet, MatSidenavModule, FooterComponent, SideNavListComponent, HeaderComponent],
   templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.component.scss'
 })
 export class AppComponent {

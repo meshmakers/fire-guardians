@@ -41,6 +41,13 @@ stages:
               sshKeySecureFile: '$(SSHPrivateKeyFile)'            
           - template: set-version.yml
           - template: download-ca.yml
+          # The agent-side `dotnet test` below triggers the ClientApp build
+          # (ng build) on the agent's Node. Angular 22 / CLI 22 need
+          # Node >=22.22.3 (^22.22.3 || ^24.15.0 || >=26.0.0); pin 24.15.x.
+          - task: UseNode@1
+            displayName: 'Install Node.js 24.15.x'
+            inputs:
+              version: '24.15.x'
           - task: DotNetCoreCLI@2
             displayName: 'Running tests'
             inputs:

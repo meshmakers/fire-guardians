@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit, Signal, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, Signal, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {BehaviorSubject, firstValueFrom, lastValueFrom} from "rxjs";
 import { HttpClient } from "@angular/common/http";
@@ -20,6 +20,7 @@ import {WalletService} from "../services/wallet/wallet.service";
   standalone: true,
   imports: [MatButtonModule, CommonModule, GoogleMapsModule, AsyncPipe, MatProgressBar, MatIcon],
   templateUrl: './home.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './home.component.scss'
 })
 export class HomeComponent implements OnInit {

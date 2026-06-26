@@ -13,7 +13,7 @@ import {AuthorizeService, provideMmSharedAuth, authorizeInterceptor} from "@mesh
 import {defaultAuthorizeOptions} from "./config/defaultAuthorizeOptions";
 import {defaultOctoServiceOptions} from "./config/defaultOctoServiceOptions";
 import {provideMmSharedServices} from "@meshmakers/shared-services";
-import {provideHttpClient, withInterceptors, withInterceptorsFromDi, withJsonpSupport} from "@angular/common/http";
+import {provideHttpClient, withInterceptors, withInterceptorsFromDi, withJsonpSupport, withXhr} from "@angular/common/http";
 import {CONFIGURATION_SERVICE, OctoErrorLink, provideOctoServices} from "@meshmakers/octo-services";
 import {provideMmSharedUi} from "@meshmakers/shared-ui";
 import {provideApollo} from "apollo-angular";
@@ -23,7 +23,7 @@ import {provideServiceWorker} from '@angular/service-worker';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideHttpClient(
+    provideHttpClient(withXhr(), 
       withJsonpSupport(),
       withInterceptors([authorizeInterceptor]),
       withInterceptorsFromDi()
