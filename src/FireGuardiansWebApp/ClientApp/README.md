@@ -16,7 +16,9 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 ## Running unit tests
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Run `npm test` (or `ng test --watch=false`) to execute the unit tests via
+[Vitest](https://vitest.dev) in jsdom. See the *Unit Tests* section of `DEVELOPER.md` for the
+setup and for the command CI runs.
 
 ## Running end-to-end tests
 

@@ -48,6 +48,26 @@ stages:
             displayName: 'Install Node.js 24.15.x'
             inputs:
               version: '24.15.x'
+          - task: CmdLine@2
+            displayName: 'Install ClientApp dependencies'
+            inputs:
+              script: 'npm ci'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/src/FireGuardiansWebApp/ClientApp'
+          - task: CmdLine@2
+            displayName: 'Run ClientApp unit tests'
+            inputs:
+              script: 'NODE_OPTIONS="--max-old-space-size=6144" npm run test -- --reporters=default --reporters=junit --output-file=test-results/TESTS-junit.xml'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/src/FireGuardiansWebApp/ClientApp'
+            continueOnError: false
+          - task: PublishTestResults@2
+            displayName: 'Publish ClientApp unit test results'
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/TESTS-*.xml'
+              searchFolder: '$(System.DefaultWorkingDirectory)/src/FireGuardiansWebApp/ClientApp'
+              mergeTestResults: true
+              testRunTitle: 'Unit Tests - Fire Guardians ClientApp'
+            condition: succeededOrFailed()
           - task: DotNetCoreCLI@2
             displayName: 'Running tests'
             inputs:

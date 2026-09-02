@@ -13,7 +13,7 @@ Fire Guardians is a Progressive Web Application (PWA) for reporting and tracking
 2. [Technology Stack](#technology-stack)
 3. [Project Structure](#project-structure)
 4. [Backend (ASP.NET Core)](#backend-aspnet-core)
-5. [Frontend (Angular 21)](#frontend-angular-21)
+5. [Frontend (Angular 22)](#frontend-angular-22)
 6. [Construction Kit Data Model](#construction-kit-data-model)
 7. [GraphQL API](#graphql-api)
 8. [Authentication & Authorization](#authentication--authorization)
@@ -35,7 +35,7 @@ Fire Guardians follows a **full-stack SPA architecture** with a clear separation
 ┌─────────────────────────────────────────────────────────────────┐
 │                        Browser / PWA                            │
 │  ┌───────────────────────────────────────────────────────────┐  │
-│  │  Angular 21 SPA (Standalone Components)                   │  │
+│  │  Angular 22 SPA (Standalone Components)                   │  │
 │  │  ┌─────────────┐  ┌──────────────┐  ┌─────────────────┐   │  │
 │  │  │ Google Maps │  │ Apollo Client│  │ Service Worker  │   │  │
 │  │  │ (Map View)  │  │ (GraphQL)    │  │ (Push + Cache)  │   │  │
@@ -83,15 +83,15 @@ Fire Guardians follows a **full-stack SPA architecture** with a clear separation
 
 | Technology | Version | Purpose |
 |---|---|---|
-| Angular | 21.x | SPA framework (standalone components, signals) |
-| TypeScript | 5.9.x | Language |
-| Angular Material | 21.x | UI component library |
-| Apollo Angular | 13.x | GraphQL client |
-| angular-oauth2-oidc | 20.x | OAuth 2.0 / OIDC authentication |
+| Angular | 22.0.x | SPA framework (standalone components, signals) |
+| TypeScript | 6.0.x | Language |
+| Angular Material | 22.1.x | UI component library |
+| Apollo Angular | 14.1.x | GraphQL client (with @apollo/client 4.x) |
+| angular-oauth2-oidc | 22.0.x | OAuth 2.0 / OIDC authentication |
 | Google Maps JS API | — | Interactive map rendering |
-| @angular/google-maps | 21.x | Angular wrapper for Google Maps |
+| @angular/google-maps | 22.1.x | Angular wrapper for Google Maps |
 | RxJS | 7.8.x | Reactive programming |
-| Angular Service Worker | 21.x | PWA support (caching, push) |
+| Angular Service Worker | 22.0.x | PWA support (caching, push) |
 | @meshmakers/shared-auth | — | Shared authentication library |
 | @meshmakers/shared-services | — | Shared services library |
 | @meshmakers/shared-ui | — | Shared UI component library |
@@ -112,7 +112,9 @@ Fire Guardians follows a **full-stack SPA architecture** with a clear separation
 
 | Tool | Purpose |
 |---|---|
-| Angular CLI | Frontend build tooling (esbuild) |
+| Angular CLI | Frontend build tooling |
+| @angular/build | Build, serve and unit-test builders (esbuild/Vite) |
+| Vitest | Frontend unit-test runner (jsdom, no browser) |
 | @graphql-codegen | TypeScript type generation from GraphQL |
 | Docker | Container builds (multi-stage) |
 | Azure Pipelines | CI/CD |
@@ -125,7 +127,7 @@ Fire Guardians follows a **full-stack SPA architecture** with a clear separation
 fire-guardians/
 ├── src/
 │   ├── FireGuardiansWebApp/                    # ASP.NET Core backend + SPA host
-│   │   ├── ClientApp/                          # Angular 21 frontend
+│   │   ├── ClientApp/                          # Angular 22 frontend
 │   │   │   ├── src/
 │   │   │   │   ├── app/
 │   │   │   │   │   ├── home/                   # Map view (main feature)
@@ -288,7 +290,7 @@ Loop (every 60s):
 
 ---
 
-## Frontend (Angular 21)
+## Frontend (Angular 22)
 
 ### Bootstrap & Initialization
 
@@ -615,7 +617,7 @@ The frontend fetches all configuration dynamically from `GET /_configuration` at
 ### Prerequisites
 
 - .NET SDK 10.0+
-- Node.js 20.x+
+- Node.js 22.22.3+ (or 24.15.0+ / 26.0.0+) — Angular 22 / Angular CLI 22 reject older versions; CI pins 24.15.x
 - npm 10.x+
 - Angular CLI (`npm install -g @angular/cli`)
 - A running OctoMesh instance (see [Setup Scripts](#setup-scripts))
@@ -647,7 +649,7 @@ When GraphQL operations (`.graphql` files) are modified:
 
 ```bash
 cd src/FireGuardiansWebApp/ClientApp
-npm run generate
+npm run codegen
 ```
 
 This runs `@graphql-codegen` using `codegen.yml` to regenerate TypeScript types and Angular services.
@@ -659,9 +661,67 @@ cd src/FireGuardiansWebApp/ClientApp
 npm install
 npm start          # Development server
 npm run build      # Production build
-npm test           # Run unit tests (Karma + Jasmine)
-npm run generate   # Regenerate GraphQL types
+npm test           # Run unit tests (Vitest, single run)
+npm run codegen    # Regenerate GraphQL types
 ```
+
+There is no lint script and no ESLint configuration in this workspace.
+
+### Unit Tests
+
+The ClientApp specs run on **Vitest** through the `@angular/build:unit-test` builder. There is
+no browser and no Karma: the tests execute in **jsdom** on Node.
+
+```bash
+cd src/FireGuardiansWebApp/ClientApp
+npm test                                     # single run, no watch
+npx ng test --watch                          # watch mode
+npx ng test --list-tests                     # list the discovered spec files
+
+# The command CI runs — also writes the JUnit file the pipeline publishes
+NODE_OPTIONS="--max-old-space-size=6144" npm run test -- \
+  --reporters=default --reporters=junit --output-file=test-results/TESTS-junit.xml
+```
+
+How the pieces fit together (`angular.json`):
+
+| Piece | Role |
+|---|---|
+| `test` target (`@angular/build:unit-test`) | Runs the specs; `runner: vitest`, `buildTarget: ClientApp:build:testing` |
+| `build` configuration `testing` | Exists only to carry the test polyfills (`zone.js`, `zone.js/testing`); it is never built for shipping |
+| `src/testing/vitest-setup.ts` | Loads `zone.js/plugins/vitest-patch` (needed for `fakeAsync`/`tick`), installs jsdom shims (clipboard, `fetch`, `URL.createObjectURL`, `ResizeObserver`, `innerText`, pointer capture, `DragEvent`, `matchMedia`) and restores all mocks after every test |
+| `vitest.config.ts` | Extra Vitest configuration, named by the test target's `runnerConfig`. It keeps `@meshmakers/shared-ui` on Vite's resolver, tracked in AB#5075 |
+| `tsconfig.spec.json` | Spec compilation; `types: ["vitest/globals"]`, includes the setup file |
+
+Writing specs:
+
+- `describe`, `it`, `expect`, `vi`, `beforeEach` and `afterEach` are globals — do not import them.
+- A test that needs a callback must return a promise; Vitest does not support Jasmine's
+  `done` parameter. Use `it('x', () => new Promise<void>((done) => { … }))`.
+- A class field initialised with a bare imported identifier (`readonly X = X;`) can read
+  `undefined` under the Vitest runner when two specs import the same module. Convert such a
+  field to a getter (`get X(): typeof X { return X; }`) or assign it in the constructor.
+- `test-results/` is generated output and is git-ignored.
+
+### npm dependencies
+
+- Add or remove packages with targeted `npm install <pkg>` / `npm uninstall <pkg>` calls so
+  `package.json` and `package-lock.json` stay in sync. Do not delete `package-lock.json`
+  casually — CI uses `npm ci`, which fails when the two files disagree.
+- `package.json` carries an `allowScripts` allow-list. Install scripts of packages outside
+  that list are not executed. After adding a package that needs one, review it with
+  `npm approve-scripts --allow-scripts-pending` and approve it explicitly. Approved today:
+  `@parcel/watcher`, `@progress/kendo-licensing`, `esbuild`, `fsevents`, `lmdb`,
+  `msgpackr-extract`.
+
+#### Known install warnings
+
+A clean `npm ci` prints known `npm warn deprecated` lines; they are known and
+accepted — treat any warning not already accounted for as something to fix. Known
+install warnings are tracked in AB#5075.
+
+`npm ci` must print no "install scripts not yet covered by allowScripts" advisory — if it
+does, a new package needs an `allowScripts` decision.
 
 ---
 
@@ -704,9 +764,16 @@ The Azure Pipelines configuration (`devops-build/azure-pipelines.yml`) defines:
 1. **Update Build Number** — extracts version components
 2. **Set Version** — updates `.csproj` assembly info and `package.json` versions
 3. **Download CA** — installs private NuGet server certificate
-4. **Build & Test** — `dotnet build` + `dotnet test`
-5. **Docker Build & Push** — multi-platform image build
-6. **Handle Artifacts** — copies NuGet packages, CK docs, API docs
+4. **Install Node.js** — pins 24.15.x for the Angular CLI
+5. **ClientApp Unit Tests** — `npm ci`, then Vitest with the JUnit reporter; the results are
+   published from `src/FireGuardiansWebApp/ClientApp/test-results/TESTS-junit.xml` under the
+   run title *Unit Tests - Fire Guardians ClientApp*. The publish step runs on
+   `succeededOrFailed()`, so failing tests still show up in the Tests tab, but the test step
+   itself fails the build. The `@meshmakers/*` packages come from the public npm registry, so
+   no registry credentials or CA are needed for `npm ci`.
+6. **Build & Test** — `dotnet build` + `dotnet test`
+7. **Docker Build & Push** — multi-platform image build
+8. **Handle Artifacts** — copies NuGet packages, CK docs, API docs
 
 **Docker image push rules:**
 
