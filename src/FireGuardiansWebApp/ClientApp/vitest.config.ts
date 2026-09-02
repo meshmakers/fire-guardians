@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 /**
  * Extra Vitest configuration for the ClientApp unit tests, loaded by the
- * `@angular/build:unit-test` builder (`runnerConfig: true`).
+ * `@angular/build:unit-test` builder (`runnerConfig: "vitest.config.ts"`).
  */
 export default defineConfig({
   test: {
@@ -13,6 +13,8 @@ export default defineConfig({
         // `exports` map, so Node's ESM loader cannot resolve those specifiers and the
         // externalised package fails to load. Letting Vite transform the package instead
         // uses Vite's resolver, which appends the extension.
+        // Remove this file once a `@meshmakers/shared-ui` release with the `.js` locale
+        // imports is consumed.
         inline: [/@meshmakers[/\\]shared-ui/],
       },
     },

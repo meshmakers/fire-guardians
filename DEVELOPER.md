@@ -690,7 +690,7 @@ How the pieces fit together (`angular.json`):
 | `test` target (`@angular/build:unit-test`) | Runs the specs; `runner: vitest`, `buildTarget: ClientApp:build:testing` |
 | `build` configuration `testing` | Exists only to carry the test polyfills (`zone.js`, `zone.js/testing`); it is never built for shipping |
 | `src/testing/vitest-setup.ts` | Loads `zone.js/plugins/vitest-patch` (needed for `fakeAsync`/`tick`), installs jsdom shims (clipboard, `fetch`, `URL.createObjectURL`, `ResizeObserver`, `innerText`, pointer capture, `DragEvent`, `matchMedia`) and restores all mocks after every test |
-| `vitest-base.config.ts` | Extra Vitest configuration, picked up because the test target sets `runnerConfig: true`. It inlines `@meshmakers/shared-ui` so Vite resolves that package's extensionless `cronstrue/locales/de` import, which Node's ESM loader cannot |
+| `vitest.config.ts` | Extra Vitest configuration, named by the test target's `runnerConfig`. It inlines `@meshmakers/shared-ui` so Vite resolves that package's extensionless `cronstrue/locales/de` import, which Node's ESM loader cannot. Remove it once a `@meshmakers/shared-ui` release with the `.js` locale imports is consumed |
 | `tsconfig.spec.json` | Spec compilation; `types: ["vitest/globals"]`, includes the setup file |
 
 Writing specs:

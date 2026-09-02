@@ -118,7 +118,7 @@
             "setupFiles": [
               "src/testing/vitest-setup.ts"
             ],
-            "runnerConfig": true
+            "runnerConfig": "vitest.config.ts"
           }
         }
       }
