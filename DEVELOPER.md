@@ -112,7 +112,9 @@ Fire Guardians follows a **full-stack SPA architecture** with a clear separation
 
 | Tool | Purpose |
 |---|---|
-| Angular CLI | Frontend build tooling (esbuild) |
+| Angular CLI | Frontend build tooling |
+| @angular/build | Build, serve and unit-test builders (esbuild/Vite) |
+| Vitest | Frontend unit-test runner (jsdom, no browser) |
 | @graphql-codegen | TypeScript type generation from GraphQL |
 | Docker | Container builds (multi-stage) |
 | Azure Pipelines | CI/CD |
@@ -615,7 +617,7 @@ The frontend fetches all configuration dynamically from `GET /_configuration` at
 ### Prerequisites
 
 - .NET SDK 10.0+
-- Node.js 20.x+
+- Node.js 22.22.3+ (or 24.15.0+ / 26.0.0+) — Angular 22 / Angular CLI 22 reject older versions; CI pins 24.15.x
 - npm 10.x+
 - Angular CLI (`npm install -g @angular/cli`)
 - A running OctoMesh instance (see [Setup Scripts](#setup-scripts))
@@ -647,7 +649,7 @@ When GraphQL operations (`.graphql` files) are modified:
 
 ```bash
 cd src/FireGuardiansWebApp/ClientApp
-npm run generate
+npm run codegen
 ```
 
 This runs `@graphql-codegen` using `codegen.yml` to regenerate TypeScript types and Angular services.
@@ -659,9 +661,58 @@ cd src/FireGuardiansWebApp/ClientApp
 npm install
 npm start          # Development server
 npm run build      # Production build
-npm test           # Run unit tests (Karma + Jasmine)
-npm run generate   # Regenerate GraphQL types
+npm test           # Run unit tests (Vitest, single run)
+npm run codegen    # Regenerate GraphQL types
 ```
+
+There is no lint script and no ESLint configuration in this workspace.
+
+### Unit Tests
+
+The ClientApp specs run on **Vitest** through the `@angular/build:unit-test` builder. There is
+no browser and no Karma: the tests execute in **jsdom** on Node.
+
+```bash
+cd src/FireGuardiansWebApp/ClientApp
+npm test                                     # single run, no watch
+npx ng test --watch                          # watch mode
+npx ng test --list-tests                     # list the discovered spec files
+
+# The command CI runs — also writes the JUnit file the pipeline publishes
+NODE_OPTIONS="--max-old-space-size=6144" npm run test -- \
+  --reporters=default --reporters=junit --output-file=test-results/TESTS-junit.xml
+```
+
+How the pieces fit together (`angular.json`):
+
+| Piece | Role |
+|---|---|
+| `test` target (`@angular/build:unit-test`) | Runs the specs; `runner: vitest`, `buildTarget: ClientApp:build:testing` |
+| `build` configuration `testing` | Exists only to carry the test polyfills (`zone.js`, `zone.js/testing`); it is never built for shipping |
+| `src/testing/vitest-setup.ts` | Loads `zone.js/plugins/vitest-patch` (needed for `fakeAsync`/`tick`), installs jsdom shims (clipboard, `fetch`, `URL.createObjectURL`, `ResizeObserver`, `innerText`, pointer capture, `DragEvent`, `matchMedia`) and restores all mocks after every test |
+| `vitest-base.config.ts` | Extra Vitest configuration, picked up because the test target sets `runnerConfig: true`. It inlines `@meshmakers/shared-ui` so Vite resolves that package's extensionless `cronstrue/locales/de` import, which Node's ESM loader cannot |
+| `tsconfig.spec.json` | Spec compilation; `types: ["vitest/globals"]`, includes the setup file |
+
+Writing specs:
+
+- `describe`, `it`, `expect`, `vi`, `beforeEach` and `afterEach` are globals — do not import them.
+- A test that needs a callback must return a promise; Vitest does not support Jasmine's
+  `done` parameter. Use `it('x', () => new Promise<void>((done) => { … }))`.
+- A class field initialised with a bare imported identifier (`readonly X = X;`) can read
+  `undefined` under the Vitest runner when two specs import the same module. Convert such a
+  field to a getter (`get X(): typeof X { return X; }`) or assign it in the constructor.
+- `test-results/` is generated output and is git-ignored.
+
+### npm dependencies
+
+- Add or remove packages with targeted `npm install <pkg>` / `npm uninstall <pkg>` calls so
+  `package.json` and `package-lock.json` stay in sync. Do not delete `package-lock.json`
+  casually — CI uses `npm ci`, which fails when the two files disagree.
+- `package.json` carries an `allowScripts` allow-list. Install scripts of packages outside
+  that list are not executed. After adding a package that needs one, review it with
+  `npm approve-scripts --allow-scripts-pending` and approve it explicitly. Approved today:
+  `@parcel/watcher`, `@progress/kendo-licensing`, `esbuild`, `fsevents`, `lmdb`,
+  `msgpackr-extract`.
 
 ---
 
@@ -704,9 +755,16 @@ The Azure Pipelines configuration (`devops-build/azure-pipelines.yml`) defines:
 1. **Update Build Number** — extracts version components
 2. **Set Version** — updates `.csproj` assembly info and `package.json` versions
 3. **Download CA** — installs private NuGet server certificate
-4. **Build & Test** — `dotnet build` + `dotnet test`
-5. **Docker Build & Push** — multi-platform image build
-6. **Handle Artifacts** — copies NuGet packages, CK docs, API docs
+4. **Install Node.js** — pins 24.15.x for the Angular CLI
+5. **ClientApp Unit Tests** — `npm ci`, then Vitest with the JUnit reporter; the results are
+   published from `src/FireGuardiansWebApp/ClientApp/test-results/TESTS-junit.xml` under the
+   run title *Unit Tests - Fire Guardians ClientApp*. The publish step runs on
+   `succeededOrFailed()`, so failing tests still show up in the Tests tab, but the test step
+   itself fails the build. The `@meshmakers/*` packages come from the public npm registry, so
+   no registry credentials or CA are needed for `npm ci`.
+6. **Build & Test** — `dotnet build` + `dotnet test`
+7. **Docker Build & Push** — multi-platform image build
+8. **Handle Artifacts** — copies NuGet packages, CK docs, API docs
 
 **Docker image push rules:**
 
