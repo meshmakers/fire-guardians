@@ -11,7 +11,8 @@ import 'zone.js/plugins/vitest-patch';
 
 // ---- jsdom shims: APIs jsdom does not implement but specs spy on or components call unguarded ----
 
-// navigator.clipboard (copyable-text, entity-id-info specs spy on writeText; process designer reads readText)
+// navigator.clipboard: jsdom does not implement the async clipboard API. Components that copy
+// or paste call it unguarded, and specs need something spy-able.
 if (!('clipboard' in navigator)) {
   Object.defineProperty(navigator, 'clipboard', {
     value: {
@@ -25,7 +26,7 @@ if (!('clipboard' in navigator)) {
 
 // window.fetch / Response / Request / Headers: defensive bridge from Node's globals.
 // Under Vitest's jsdom environment `window === globalThis`, so these are normally already
-// present (authorize.service.spec.ts spies on window.fetch and builds `new Response(...)`).
+// present; specs that spy on `window.fetch` or construct `new Response(...)` rely on it.
 const w = window as unknown as Record<string, unknown>;
 const g = globalThis as unknown as Record<string, unknown>;
 for (const name of ['fetch', 'Response', 'Request', 'Headers']) {
@@ -34,13 +35,15 @@ for (const name of ['fetch', 'Response', 'Request', 'Headers']) {
   }
 }
 
-// URL.createObjectURL / revokeObjectURL (job-management.service.spec.ts spies on createObjectURL; defensive)
+// URL.createObjectURL / revokeObjectURL: jsdom implements neither. Anything that triggers a
+// client-side download or previews a Blob calls them, and specs spy on them.
 if (typeof URL.createObjectURL !== 'function') {
   URL.createObjectURL = (): string => 'blob:vitest';
   URL.revokeObjectURL = (): void => undefined;
 }
 
-// ResizeObserver: Kendo and CDK feature-detect it; app code constructs it unguarded in a few components.
+// ResizeObserver: not implemented by jsdom. Kendo and the CDK feature-detect it, but component
+// code frequently constructs it unguarded.
 if (typeof globalThis.ResizeObserver === 'undefined') {
   class ResizeObserverStub {
     observe(): void { /* no-op */ }
@@ -50,8 +53,8 @@ if (typeof globalThis.ResizeObserver === 'undefined') {
   (globalThis as unknown as { ResizeObserver: unknown }).ResizeObserver = ResizeObserverStub;
 }
 
-// HTMLElement.innerText: jsdom implements none. Kendo's SplitButton reads it in ngDoCheck
-// (`this.wrapper?.innerText.split('\n')`) and would throw on undefined, so map it to textContent.
+// HTMLElement.innerText: jsdom implements none. Widgets that read it during change detection
+// (Kendo's SplitButton does, in ngDoCheck) would throw on undefined, so map it to textContent.
 if (!('innerText' in HTMLElement.prototype)) {
   Object.defineProperty(HTMLElement.prototype, 'innerText', {
     get(this: HTMLElement): string {
@@ -64,9 +67,8 @@ if (!('innerText' in HTMLElement.prototype)) {
   });
 }
 
-// ---- Refinery-only jsdom shims ----
-
-// Element.prototype.setPointerCapture (pipeline-icicle-view.component.spec.ts spies on it; jsdom lacks it)
+// Element.prototype pointer capture: jsdom implements none of the three. Drag, resize and
+// pan interactions call them on pointerdown/pointerup.
 const proto = Element.prototype as unknown as Record<string, unknown>;
 for (const name of ['setPointerCapture', 'releasePointerCapture', 'hasPointerCapture']) {
   if (typeof proto[name] !== 'function') {
@@ -74,7 +76,8 @@ for (const name of ['setPointerCapture', 'releasePointerCapture', 'hasPointerCap
   }
 }
 
-// DragEvent (pipeline-graph.component.spec.ts dispatches `new DragEvent(...)`; jsdom has neither DragEvent nor DataTransfer)
+// DragEvent: jsdom has neither DragEvent nor DataTransfer, so specs cannot dispatch a
+// drag-and-drop event without a stand-in. MouseEvent carries the coordinates that matter.
 if (typeof (globalThis as unknown as { DragEvent?: unknown }).DragEvent === 'undefined') {
   class DragEventStub extends MouseEvent {
     readonly dataTransfer: null = null;
@@ -82,8 +85,9 @@ if (typeof (globalThis as unknown as { DragEvent?: unknown }).DragEvent === 'und
   (globalThis as unknown as { DragEvent: unknown }).DragEvent = DragEventStub;
 }
 
-// window.matchMedia (jsdom 28 does not implement it; app.component.ts, theme.service.ts and density.service.ts
-// call it unguarded in field initialisers, and 4 specs spy on it). Guard on typeof, not `'matchMedia' in window`.
+// window.matchMedia: jsdom 28 does not implement it. Components and services that react to a
+// media query call it unguarded in field initialisers, so it must exist before the first
+// TestBed instantiation. Guard on typeof, not `'matchMedia' in window`.
 if (typeof window.matchMedia !== 'function') {
   window.matchMedia = ((query: string) => ({
     matches: false,

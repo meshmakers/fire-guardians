@@ -13,7 +13,7 @@ Fire Guardians is a Progressive Web Application (PWA) for reporting and tracking
 2. [Technology Stack](#technology-stack)
 3. [Project Structure](#project-structure)
 4. [Backend (ASP.NET Core)](#backend-aspnet-core)
-5. [Frontend (Angular 21)](#frontend-angular-21)
+5. [Frontend (Angular 22)](#frontend-angular-22)
 6. [Construction Kit Data Model](#construction-kit-data-model)
 7. [GraphQL API](#graphql-api)
 8. [Authentication & Authorization](#authentication--authorization)
@@ -35,7 +35,7 @@ Fire Guardians follows a **full-stack SPA architecture** with a clear separation
 ┌─────────────────────────────────────────────────────────────────┐
 │                        Browser / PWA                            │
 │  ┌───────────────────────────────────────────────────────────┐  │
-│  │  Angular 21 SPA (Standalone Components)                   │  │
+│  │  Angular 22 SPA (Standalone Components)                   │  │
 │  │  ┌─────────────┐  ┌──────────────┐  ┌─────────────────┐   │  │
 │  │  │ Google Maps │  │ Apollo Client│  │ Service Worker  │   │  │
 │  │  │ (Map View)  │  │ (GraphQL)    │  │ (Push + Cache)  │   │  │
@@ -83,15 +83,15 @@ Fire Guardians follows a **full-stack SPA architecture** with a clear separation
 
 | Technology | Version | Purpose |
 |---|---|---|
-| Angular | 21.x | SPA framework (standalone components, signals) |
-| TypeScript | 5.9.x | Language |
-| Angular Material | 21.x | UI component library |
-| Apollo Angular | 13.x | GraphQL client |
-| angular-oauth2-oidc | 20.x | OAuth 2.0 / OIDC authentication |
+| Angular | 22.0.x | SPA framework (standalone components, signals) |
+| TypeScript | 6.0.x | Language |
+| Angular Material | 22.1.x | UI component library |
+| Apollo Angular | 14.1.x | GraphQL client (with @apollo/client 4.x) |
+| angular-oauth2-oidc | 22.0.x | OAuth 2.0 / OIDC authentication |
 | Google Maps JS API | — | Interactive map rendering |
-| @angular/google-maps | 21.x | Angular wrapper for Google Maps |
+| @angular/google-maps | 22.1.x | Angular wrapper for Google Maps |
 | RxJS | 7.8.x | Reactive programming |
-| Angular Service Worker | 21.x | PWA support (caching, push) |
+| Angular Service Worker | 22.0.x | PWA support (caching, push) |
 | @meshmakers/shared-auth | — | Shared authentication library |
 | @meshmakers/shared-services | — | Shared services library |
 | @meshmakers/shared-ui | — | Shared UI component library |
@@ -127,7 +127,7 @@ Fire Guardians follows a **full-stack SPA architecture** with a clear separation
 fire-guardians/
 ├── src/
 │   ├── FireGuardiansWebApp/                    # ASP.NET Core backend + SPA host
-│   │   ├── ClientApp/                          # Angular 21 frontend
+│   │   ├── ClientApp/                          # Angular 22 frontend
 │   │   │   ├── src/
 │   │   │   │   ├── app/
 │   │   │   │   │   ├── home/                   # Map view (main feature)
@@ -290,7 +290,7 @@ Loop (every 60s):
 
 ---
 
-## Frontend (Angular 21)
+## Frontend (Angular 22)
 
 ### Bootstrap & Initialization
 
@@ -713,6 +713,26 @@ Writing specs:
   `npm approve-scripts --allow-scripts-pending` and approve it explicitly. Approved today:
   `@parcel/watcher`, `@progress/kendo-licensing`, `esbuild`, `fsevents`, `lmdb`,
   `msgpackr-extract`.
+
+#### Known install warnings
+
+A clean `npm ci` prints seven `npm warn deprecated` lines. All of them are known and
+accepted — treat any warning **not** on this list as something to fix.
+
+| Package | Where it comes from | Why it stays |
+|---|---|---|
+| `@angular/animations` | direct dependency | `app.config.ts` calls `provideAnimations()`; it is also a peer of `@angular/platform-browser` and of the Kendo 24 packages. Angular deprecated it in favour of `animate.enter` / `animate.leave`; dropping it is a separate migration |
+| `node-domexception` | `@graphql-codegen/cli` → `@graphql-tools/github-loader` → `sync-fetch` → `node-fetch@3` → `fetch-blob` | dev-only codegen toolchain |
+| `@graphql-tools/prisma-loader` | direct dependency of `@graphql-codegen/cli` | dev-only codegen toolchain |
+| `inflight` | `glob@7` (below) | dev-only codegen toolchain |
+| `glob@7.2.3` | `@graphql-codegen/near-operation-file-preset` → `@graphql-codegen/visitor-plugin-common@2` → `@graphql-tools/relay-operation-optimizer` → `@ardatan/relay-compiler@12` | dev-only codegen toolchain |
+| `@babel/plugin-proposal-class-properties` | same chain, via `babel-preset-fbjs` | dev-only codegen toolchain |
+| `@babel/plugin-proposal-object-rest-spread` | same chain, via `babel-preset-fbjs` | dev-only codegen toolchain |
+
+The five `@graphql-codegen`-chain entries and `node-domexception` are all transitive and
+pre-date the build-system migration; they can only be cleared by a `@graphql-codegen` upgrade.
+`npm ci` must print no "install scripts not yet covered by allowScripts" advisory — if it
+does, a new package needs an `allowScripts` decision.
 
 ---
 
