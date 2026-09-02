@@ -690,7 +690,7 @@ How the pieces fit together (`angular.json`):
 | `test` target (`@angular/build:unit-test`) | Runs the specs; `runner: vitest`, `buildTarget: ClientApp:build:testing` |
 | `build` configuration `testing` | Exists only to carry the test polyfills (`zone.js`, `zone.js/testing`); it is never built for shipping |
 | `src/testing/vitest-setup.ts` | Loads `zone.js/plugins/vitest-patch` (needed for `fakeAsync`/`tick`), installs jsdom shims (clipboard, `fetch`, `URL.createObjectURL`, `ResizeObserver`, `innerText`, pointer capture, `DragEvent`, `matchMedia`) and restores all mocks after every test |
-| `vitest.config.ts` | Extra Vitest configuration, named by the test target's `runnerConfig`. It inlines `@meshmakers/shared-ui` so Vite resolves that package's extensionless `cronstrue/locales/de` import, which Node's ESM loader cannot. Remove it once a `@meshmakers/shared-ui` release with the `.js` locale imports is consumed |
+| `vitest.config.ts` | Extra Vitest configuration, named by the test target's `runnerConfig`. It keeps `@meshmakers/shared-ui` on Vite's resolver, tracked in AB#5075 |
 | `tsconfig.spec.json` | Spec compilation; `types: ["vitest/globals"]`, includes the setup file |
 
 Writing specs:
@@ -716,21 +716,10 @@ Writing specs:
 
 #### Known install warnings
 
-A clean `npm ci` prints seven `npm warn deprecated` lines. All of them are known and
-accepted — treat any warning **not** on this list as something to fix.
+A clean `npm ci` prints known `npm warn deprecated` lines; they are known and
+accepted — treat any warning not already accounted for as something to fix. Known
+install warnings are tracked in AB#5075.
 
-| Package | Where it comes from | Why it stays |
-|---|---|---|
-| `@angular/animations` | direct dependency | `app.config.ts` calls `provideAnimations()`; it is also a peer of `@angular/platform-browser` and of the Kendo 24 packages. Angular deprecated it in favour of `animate.enter` / `animate.leave`; dropping it is a separate migration |
-| `node-domexception` | `@graphql-codegen/cli` → `@graphql-tools/github-loader` → `sync-fetch` → `node-fetch@3` → `fetch-blob` | dev-only codegen toolchain |
-| `@graphql-tools/prisma-loader` | direct dependency of `@graphql-codegen/cli` | dev-only codegen toolchain |
-| `inflight` | `glob@7` (below) | dev-only codegen toolchain |
-| `glob@7.2.3` | `@graphql-codegen/near-operation-file-preset` → `@graphql-codegen/visitor-plugin-common@2` → `@graphql-tools/relay-operation-optimizer` → `@ardatan/relay-compiler@12` | dev-only codegen toolchain |
-| `@babel/plugin-proposal-class-properties` | same chain, via `babel-preset-fbjs` | dev-only codegen toolchain |
-| `@babel/plugin-proposal-object-rest-spread` | same chain, via `babel-preset-fbjs` | dev-only codegen toolchain |
-
-The five `@graphql-codegen`-chain entries and `node-domexception` are all transitive and
-pre-date the build-system migration; they can only be cleared by a `@graphql-codegen` upgrade.
 `npm ci` must print no "install scripts not yet covered by allowScripts" advisory — if it
 does, a new package needs an `allowScripts` decision.
 

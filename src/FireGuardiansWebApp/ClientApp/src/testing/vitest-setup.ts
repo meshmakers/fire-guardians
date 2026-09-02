@@ -105,6 +105,9 @@ if (typeof window.matchMedia !== 'function') {
 
 // Jasmine restored every spy after each spec; Vitest keeps vi.spyOn spies (and their call history)
 // alive across tests unless restored. Restore them after every test for Jasmine parity.
+// Vitest 4's restoreAllMocks no longer clears standalone vi.fn() state, so describe-scoped
+// stubs (not created via spyOn) leaked call history between tests — clearAllMocks covers those.
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.clearAllMocks();
 });
