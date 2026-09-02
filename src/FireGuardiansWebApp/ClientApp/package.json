@@ -90,5 +90,13 @@
     "jsdom": "^28.1.0",
     "typescript": "~6.0.3",
     "vitest": "^4.1.11"
+  },
+  "allowScripts": {
+    "@parcel/watcher": true,
+    "@progress/kendo-licensing": true,
+    "esbuild": true,
+    "fsevents": true,
+    "lmdb": true,
+    "msgpackr-extract": true
   }
 }
