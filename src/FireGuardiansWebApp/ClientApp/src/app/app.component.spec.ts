@@ -46,10 +46,12 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('my-app');
   });
 
-  it('should render title', () => {
+  it('should render the shell', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, my-app');
+    expect(compiled.querySelector('app-header')).not.toBeNull();
+    expect(compiled.querySelector('router-outlet')).not.toBeNull();
+    expect(compiled.querySelector('app-footer')).not.toBeNull();
   });
 });
