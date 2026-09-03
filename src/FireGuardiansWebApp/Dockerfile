@@ -1,10 +1,10 @@
-﻿FROM meshmakers/dotnet_aspnetcore-runtime-node:1.3.0.0 AS base
+FROM meshmakers/dotnet_aspnetcore-runtime-node:1.3.0.0 AS base
 USER $APP_UID
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM meshmakers/dotnet_sdk-node:1.3.0.0 AS build
+FROM meshmakers/dotnet_sdk-node:8.0-20240826.2 AS build
 ARG BUILD_CONFIGURATION=Release
 
 WORKDIR /src
