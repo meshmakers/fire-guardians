@@ -1,0 +1,13 @@
+# Dependabot keeps the NuGet packages and the Dockerfile base images current.
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/src/FireGuardiansWebApp"
+    schedule:
+      interval: "weekly"

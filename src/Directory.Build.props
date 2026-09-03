@@ -16,7 +16,8 @@
         <Version>0.0.0</Version>
         <Version Condition="'$(Configuration)'=='DebugL'">999.0.0</Version>
         <PackageVersion Condition="'$(Configuration)'=='DebugL'">999.0.0</PackageVersion>
-        <RestoreSources Condition="'$(Configuration)'=='DebugL'">$(MSBuildThisFileDirectory)../../meshmakers/nuget</RestoreSources>
+        <!-- DebugL: Meshmakers packages come from the workspace-local ../nuget folder next to this repo, everything else from nuget.org -->
+        <RestoreSources Condition="'$(Configuration)'=='DebugL'">$(MSBuildThisFileDirectory)../../nuget;https://api.nuget.org/v3/index.json</RestoreSources>
         <OctoVersion Condition="'$(Configuration)'=='DebugL'">999.0.0</OctoVersion>
     </PropertyGroup>
 </Project>
