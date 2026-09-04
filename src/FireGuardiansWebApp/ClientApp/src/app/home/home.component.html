@@ -1,4 +1,4 @@
-@if (!(apiLoaded | async) || isLoading) {
+@if ((apiLoaded | async) === false || isLoading) {
   <mat-progress-bar mode="indeterminate">
   </mat-progress-bar>
 }
@@ -8,7 +8,7 @@
                 height="100%" mapId="871348944e6aa7e7"
                 [zoom]="zoom"
                 [center]="center"
-                (mapInitialized)="mapInitialized($event)">
+                (mapInitialized)="mapInitialized()">
       @if (homeCenter) {
         <map-advanced-marker [position]="homeCenter" [content]="currentPositionMarkerSvg">
           <svg #currentPositionMarkerSvg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#FF5733" stroke="#FFFFFF" viewBox="0 0 24 24">

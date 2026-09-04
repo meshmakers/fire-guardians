@@ -51,7 +51,7 @@ export const appConfig: ApplicationConfig = {
       return {
         link: ApolloLink.from([octoErrorLink, httpLink.create({uri: uri})]),
         cache: new InMemoryCache({
-          dataIdFromObject: (o) => <string>o['rtId'],
+          dataIdFromObject: (o) => (o['rtId'] as string),
         }),
       };
     })

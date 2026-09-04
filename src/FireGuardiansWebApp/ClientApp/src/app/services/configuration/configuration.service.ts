@@ -9,7 +9,7 @@ export class ConfigurationService implements IConfigurationService {
   private configuration: ConfigurationDto;
 
   constructor() {
-    this.configuration = <ConfigurationDto>{};
+    this.configuration = {} as ConfigurationDto;
   }
 
   public get config(): ConfigurationDto {
@@ -24,7 +24,7 @@ export class ConfigurationService implements IConfigurationService {
       throw new Error(`Could not load configuration.'`);
     }
 
-    this.configuration = <ConfigurationDto>await result.json();
+    this.configuration = await result.json() as ConfigurationDto;
 
     console.debug('end loading config function');
   }

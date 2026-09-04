@@ -1,4 +1,4 @@
-import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {MatProgressBar} from "@angular/material/progress-bar";
 import {MatToolbar} from "@angular/material/toolbar";
 import {MatButton} from "@angular/material/button";
@@ -28,7 +28,7 @@ import {MatIcon} from "@angular/material/icon";
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './create-fire-report.component.scss'
 })
-export class CreateFireReportComponent extends AbstractDetailsComponent<FireGuardiansFireReportDto> implements OnInit {
+export class CreateFireReportComponent extends AbstractDetailsComponent<FireGuardiansFireReportDto> {
   private readonly id: string | null;
 
   constructor(
@@ -47,9 +47,9 @@ export class CreateFireReportComponent extends AbstractDetailsComponent<FireGuar
     this.id = null;
   }
 
-  ngOnInit(): void {
-  }
-
+  // The details view is a stub: the Save button in the template is wired up, but
+  // persisting the report is not implemented yet.
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async save(): Promise<void> {
   }
 }

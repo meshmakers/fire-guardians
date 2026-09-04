@@ -57,7 +57,7 @@ export class NotificationService {
 
       this.messageService.showInformation("Notification subscription successful");
 
-    } catch (e) {
+    } catch {
       this.messageService.showError("Notification subscription failed. Please allow notifications in your browser settings.");
     }
   }

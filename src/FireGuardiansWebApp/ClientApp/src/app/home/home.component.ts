@@ -33,8 +33,8 @@ export class HomeComponent implements OnInit {
   protected newCenter: google.maps.LatLngLiteral;
   protected homeCenter: google.maps.LatLngLiteral | null;
   protected markerPositions: Marker[] = [];
-  protected isLoading: boolean = true;
-  protected createFireReportEnabled: boolean = false;
+  protected isLoading = true;
+  protected createFireReportEnabled = false;
   protected newMarkerOptions: google.maps.marker.AdvancedMarkerElementOptions = { gmpDraggable: true};
   protected isAuthenticated: Signal<boolean>;
 
@@ -107,8 +107,7 @@ export class HomeComponent implements OnInit {
         this.markerPositions = [];
         r.data?.runtime?.fireGuardiansFireReport?.items?.forEach((item) => {
           if (item) {
-            this.markerPositions.push(<Marker>
-              {
+            this.markerPositions.push(({
                 position: {
                   lat: item.location?.point?.coordinates?.latitude ?? 0,
                   lng: item.location?.point?.coordinates?.longitude ?? 0
@@ -116,7 +115,7 @@ export class HomeComponent implements OnInit {
                 options: {
                   title: item.name
                 }
-              });
+              } as Marker));
 
           }
         });
@@ -129,7 +128,7 @@ export class HomeComponent implements OnInit {
 
   }
 
-  mapInitialized($event: google.maps.Map) {
+  mapInitialized(): void {
     this.changeDetector.detectChanges();
     this.googleMap?.boundsChanged.subscribe(async () => {
       await this.loadMarkers();
@@ -155,11 +154,15 @@ export class HomeComponent implements OnInit {
     return degrees * Math.PI / 180;
   }
 
-  createFireReport() {
+  createFireReport(): void {
     this.createFireReportEnabled = true;
   }
 
-  public onDragend(event: any){
+  public onDragend(event: google.maps.MapMouseEvent): void {
+    if (!event.latLng) {
+      return;
+    }
+
     this.newCenter = {lat: event.latLng.lat(), lng: event.latLng.lng()};
   }
 
@@ -173,17 +176,16 @@ export class HomeComponent implements OnInit {
     if (confirmResult) {
 
       const geo = await this.locationService.getLocationName(new google.maps.LatLng(this.newCenter.lat, this.newCenter.lng));
-      const v = <CreateFireReportMutationVariablesDto>{
+      const v = {
         position: {latitude: this.newCenter.lat, longitude: this.newCenter.lng},
         name: geo,
         description: ""
-      };
+      } as CreateFireReportMutationVariablesDto;
 
       const r = await firstValueFrom(this.createFireReportDtoGQL.mutate({variables: v}));
       const entity = r.data?.runtime?.fireGuardiansFireReports?.create?.at(0);
       if (entity) {
-        this.markerPositions.push(<Marker>
-          {
+        this.markerPositions.push(({
             position: {
               lat: entity.location?.point?.coordinates?.latitude ?? 0,
               lng: entity.location?.point?.coordinates?.longitude ?? 0
@@ -191,7 +193,7 @@ export class HomeComponent implements OnInit {
             options: {
               title: entity.name
             }
-          });
+          } as Marker));
 
         this.createFireReportEnabled = false;
         this.newCenter = this.center;

@@ -29,7 +29,7 @@ export class WalletService {
     } else {
       const u = this.authorizeService.user();
       if (u) {
-        const id = (<any>u).sub;
+        const id = u.sub;
 
         await firstValueFrom(this.createWallet.mutate({
           variables: {
@@ -51,7 +51,7 @@ export class WalletService {
   async getWallet(): Promise<FireGuardiansWalletDto | null> {
     const u = this.authorizeService.user();
     if (u) {
-      const id = (<any>u).sub;
+      const id = u.sub;
 
       const apolloQueryResult = await firstValueFrom(this.getWalletDtoGQL.fetch({variables: {identityId: id}}));
       if (apolloQueryResult.data?.runtime?.fireGuardiansWallet?.items?.length) {

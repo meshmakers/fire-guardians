@@ -5,8 +5,6 @@ import {XLocation} from "../../models/location";
   providedIn: 'root'
 })
 export class LocationService {
-  constructor() {
-  }
 
   public getCurrentLocation(): Promise<XLocation> {
 
@@ -21,10 +19,10 @@ export class LocationService {
                 ' Longitude: ' +
                 position.coords.longitude
               );
-              let lat = position.coords.latitude;
-              let lng = position.coords.longitude;
+              const lat = position.coords.latitude;
+              const lng = position.coords.longitude;
 
-              resolve(<XLocation>{latitude: lat, longitude: lng});
+              resolve(({latitude: lat, longitude: lng} as XLocation));
             }
           },
           (error) => reject(error)
@@ -37,15 +35,12 @@ export class LocationService {
 
 
   public async getLocationName(lngLat: google.maps.LatLng): Promise<string> {
-    let geocoder = new google.maps.Geocoder();
-    let locationName = '';
+    const geocoder = new google.maps.Geocoder();
 
     const response = await geocoder.geocode({location: lngLat});
     if (response.results[0]) {
-      locationName = response.results[0].formatted_address;
-    } else {
-      locationName = 'Unknown location';
+      return response.results[0].formatted_address;
     }
-    return locationName;
+    return 'Unknown location';
   }
 }
