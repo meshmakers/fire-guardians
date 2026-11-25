@@ -400,3 +400,6 @@ FodyWeavers.xsd
 
 # macOS
 .DS_Store
+
+# GraphQL code generated from schema.graphql by npm run codegen
+src/FireGuardiansWebApp/ClientApp/src/app/graphQL/*.ts

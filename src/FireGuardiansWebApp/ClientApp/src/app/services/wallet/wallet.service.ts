@@ -1,10 +1,14 @@
 import {Injectable} from '@angular/core';
 import {AuthorizeService} from "@meshmakers/shared-auth";
 import {firstValueFrom} from "rxjs";
-import {GetWalletDtoGQL} from "../../graphQL/getWallet";
+import {GetWalletDtoGQL, GetWalletQueryDto} from "../../graphQL/getWallet";
 import {CreateWalletDtoGQL} from "../../graphQL/createWallet";
 import {UpdateWalletLocationDtoGQL} from "../../graphQL/updateWalletLocation";
-import {FireGuardiansWalletDto} from "../../graphQL/globalTypes";
+
+type WalletQueryRuntime = NonNullable<GetWalletQueryDto['runtime']>;
+type WalletConnection = NonNullable<WalletQueryRuntime['fireGuardiansWallet']>;
+type WalletItems = NonNullable<WalletConnection['items']>;
+export type Wallet = NonNullable<WalletItems[number]>;
 
 @Injectable({
   providedIn: 'root'
@@ -48,7 +52,7 @@ export class WalletService {
     }
   }
 
-  async getWallet(): Promise<FireGuardiansWalletDto | null> {
+  async getWallet(): Promise<Wallet | null> {
     const u = this.authorizeService.user();
     if (u) {
       const id = u.sub;

@@ -645,20 +645,11 @@ The ASP.NET Core SPA proxy serves the Angular dev server at `https://localhost:4
 
 ### GraphQL Code Generation
 
-When GraphQL operations (`.graphql` files) are modified:
-
-```bash
-cd src/FireGuardiansWebApp/ClientApp
-npm run codegen
-```
-
-This runs `@graphql-codegen` 8 using `codegen.yml` to regenerate TypeScript types and Angular services
-from the committed `src/FireGuardiansWebApp/schema.graphql`. Commit the generated files with the `.graphql` change:
-CI runs `npm run codegen:check` (`scripts/codegen-check.mjs`, plain Node, so it also runs in cmd.exe), which
-regenerates them and fails when a generated file differs from the committed one, is new or deleted and not committed,
-or has no matching `.graphql` document left.
-The `afterAllFileWrite` hook `scripts/codegen-strip-incremental.mjs` removes the per-file `Incremental` type that
-codegen 8 writes into every operation file.
+The schema is committed (`src/FireGuardiansWebApp/schema.graphql`); the TypeScript code is generated from it and
+the `.graphql` files in `src/app/graphQL/` by `npm run codegen` (`@graphql-codegen` 8, `codegen.yml`) and is not
+committed. `prestart`, `prebuild`, `pretest` and `prelint` run it, so a fresh clone needs no manual step, and CI runs it as
+its own step after `npm ci`; an invalid document fails that step. To refresh the schema, export it from a tenant with the
+FireGuardians model, replace `schema.graphql` and commit it.
 
 ### Frontend Only
 
@@ -771,7 +762,7 @@ The Azure Pipelines configuration (`devops-build/azure-pipelines.yml`) defines:
 2. **Set Version** — updates `.csproj` assembly info and `package.json` versions
 3. **Download CA** — installs private NuGet server certificate
 4. **Install Node.js** — pins 24.15.x for the Angular CLI
-5. **ClientApp Unit Tests** — `npm ci`, then `npm run codegen:check`, then Vitest with the JUnit reporter; the results are
+5. **ClientApp Unit Tests** — `npm ci`, then `npm run codegen`, then Vitest with the JUnit reporter; the results are
    published from `src/FireGuardiansWebApp/ClientApp/test-results/TESTS-junit.xml` under the
    run title *Unit Tests - Fire Guardians ClientApp*. The publish step runs on
    `succeededOrFailed()`, so failing tests still show up in the Tests tab, but the test step
