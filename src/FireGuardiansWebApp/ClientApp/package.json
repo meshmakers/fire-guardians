@@ -14,7 +14,7 @@
     "lint:fix": "ng lint --fix",
     "postinstall": "node src/environments/version.ts",
     "codegen": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 graphql-codegen --config codegen.yml",
-    "codegen:check": "graphql-codegen --config codegen.yml && git diff --exit-code -- src/app/graphQL && test -z \"$(git status --porcelain -- src/app/graphQL)\""
+    "codegen:check": "node scripts/codegen-check.mjs codegen.yml src/app/graphQL .ts"
   },
   "private": true,
   "dependencies": {
