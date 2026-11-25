@@ -1,4 +1,7 @@
 overwrite: true
+hooks:
+  afterAllFileWrite:
+    - node scripts/codegen-strip-incremental.mjs
 schema:
   - ../schema.graphql
 documents: "src/app/graphQL/*.graphql"
@@ -9,20 +12,40 @@ generates:
     config:
       typesSuffix: Dto
       enumPrefix: false
-      scalars:
+      scalars: &scalars
         OctoObjectId: string
         CkAttributeId: string
         CkEnumId: string
         CkRecordId: string
         CkTypeId: string
+        BigInt: any
+        Byte: any
+        CkModelId: any
+        CkVersion: any
+        DateTime: any
+        DateTimeOffset: any
+        Decimal: any
+        LargeBinary: any
+        Long: any
+        RtCkAssociationRoleId: any
+        RtCkEnumId: any
+        RtCkRecordId: any
+        RtCkTypeId: any
+        Seconds: any
+        SimpleScalar: any
+        ULong: any
+        Uri: any
   src/app/graphQL/:
     preset: near-operation-file
     presetConfig:
       extension: .ts
-      baseTypesPath: globalTypes.ts
     plugins:
       - "typescript-operations"
       - "typescript-apollo-angular"
     config:
       typesSuffix: Dto
       addExplicitOverride: true
+      importSchemaTypesFrom: src/app/graphQL/globalTypes
+      nonOptionalTypename: true
+      skipTypeNameForRoot: true
+      scalars: *scalars

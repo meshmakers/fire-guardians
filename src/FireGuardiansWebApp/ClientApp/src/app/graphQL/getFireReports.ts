@@ -1,16 +1,18 @@
-import * as Types from './globalTypes';
+import type * as Types from './globalTypes';
 
 import { gql } from 'apollo-angular';
 import { Injectable } from '@angular/core';
 import * as Apollo from 'apollo-angular';
-export type GetFireReportsQueryVariablesDto = Types.Exact<{
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type GetFireReportsQueryVariablesDto = Exact<{
   position: Types.PositionInputDto;
-  minDistance?: Types.InputMaybe<Types.Scalars['Float']['input']>;
-  maxDistance?: Types.InputMaybe<Types.Scalars['Float']['input']>;
+  minDistance?: number | null | undefined;
+  maxDistance?: number | null | undefined;
 }>;
 
 
-export type GetFireReportsQueryDto = { __typename?: 'OctoQuery', runtime?: { __typename?: 'RuntimeModelQuery', fireGuardiansFireReport?: { __typename?: 'FireGuardiansFireReportConnection', items?: Array<{ __typename?: 'FireGuardiansFireReport', rtId: any, rtCreationDateTime?: any | null, name: string, description?: string | null, location: { __typename?: 'RtGeospatialValueDto', distance?: number | null, point?: { __typename?: 'Point', coordinates?: { __typename?: 'Position', latitude: number, longitude: number, altitude?: number | null } | null } | null } } | null> | null } | null } | null };
+export type GetFireReportsQueryDto = { runtime: { __typename: 'RuntimeModelQuery', fireGuardiansFireReport: { __typename: 'FireGuardiansFireReportConnection', items: Array<{ __typename: 'FireGuardiansFireReport', rtId: string, rtCreationDateTime: any, name: string, description: string | null, location: { __typename: 'RtGeospatialValueDto', distance: number | null, point: { __typename: 'Point', coordinates: { __typename: 'Position', latitude: number, longitude: number, altitude: number | null } | null } | null } } | null> | null } | null } | null };
 
 export const GetFireReportsDocumentDto = gql`
     query getFireReports($position: PositionInput!, $minDistance: Float, $maxDistance: Float) {

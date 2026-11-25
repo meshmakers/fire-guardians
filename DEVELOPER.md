@@ -652,7 +652,11 @@ cd src/FireGuardiansWebApp/ClientApp
 npm run codegen
 ```
 
-This runs `@graphql-codegen` using `codegen.yml` to regenerate TypeScript types and Angular services.
+This runs `@graphql-codegen` 8 using `codegen.yml` to regenerate TypeScript types and Angular services
+from the committed `src/FireGuardiansWebApp/schema.graphql`. Commit the generated files with the `.graphql` change:
+CI runs `npm run codegen:check`, which regenerates them and fails when the result differs from the committed files.
+The `afterAllFileWrite` hook `scripts/codegen-strip-incremental.mjs` removes the per-file `Incremental` type that
+codegen 8 writes into every operation file.
 
 ### Frontend Only
 

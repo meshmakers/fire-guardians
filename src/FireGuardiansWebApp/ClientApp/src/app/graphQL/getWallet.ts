@@ -1,14 +1,14 @@
-import * as Types from './globalTypes';
-
 import { gql } from 'apollo-angular';
 import { Injectable } from '@angular/core';
 import * as Apollo from 'apollo-angular';
-export type GetWalletQueryVariablesDto = Types.Exact<{
-  identityId: Types.Scalars['SimpleScalar']['input'];
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type GetWalletQueryVariablesDto = Exact<{
+  identityId: any;
 }>;
 
 
-export type GetWalletQueryDto = { __typename?: 'OctoQuery', runtime?: { __typename?: 'RuntimeModelQuery', fireGuardiansWallet?: { __typename?: 'FireGuardiansWalletConnection', items?: Array<{ __typename?: 'FireGuardiansWallet', rtId: any, identityId: string, name: string, location?: { __typename?: 'RtGeospatialValueDto', point?: { __typename?: 'Point', coordinates?: { __typename?: 'Position', latitude: number, longitude: number } | null } | null } | null } | null> | null } | null } | null };
+export type GetWalletQueryDto = { runtime: { __typename: 'RuntimeModelQuery', fireGuardiansWallet: { __typename: 'FireGuardiansWalletConnection', items: Array<{ __typename: 'FireGuardiansWallet', rtId: string, identityId: string, name: string, location: { __typename: 'RtGeospatialValueDto', point: { __typename: 'Point', coordinates: { __typename: 'Position', latitude: number, longitude: number } | null } | null } | null } | null> | null } | null } | null };
 
 export const GetWalletDocumentDto = gql`
     query getWallet($identityId: SimpleScalar!) {

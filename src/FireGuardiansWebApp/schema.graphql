@@ -2826,7 +2826,6 @@ type CkAttribute {
     defaultValues: [SimpleScalar]
     "Optional description of the attribute."
     description: String
-    "Optional flag that tells if an attribute is a data stream."
     "Optional meta data of the attribute."
     metaData: [CkAttributeMetaData]
 }

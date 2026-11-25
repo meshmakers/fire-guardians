@@ -47,6 +47,11 @@ stages:
               script: 'npm ci'
               workingDirectory: '$(System.DefaultWorkingDirectory)/src/FireGuardiansWebApp/ClientApp'
           - task: CmdLine@2
+            displayName: 'Check generated GraphQL code is up to date'
+            inputs:
+              script: 'npm run codegen:check'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/src/FireGuardiansWebApp/ClientApp'
+          - task: CmdLine@2
             displayName: 'Run ClientApp unit tests'
             inputs:
               script: 'NODE_OPTIONS="--max-old-space-size=6144" npm run test -- --reporters=default --reporters=junit --output-file=test-results/TESTS-junit.xml'
