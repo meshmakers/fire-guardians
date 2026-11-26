@@ -646,23 +646,21 @@ The ASP.NET Core SPA proxy serves the Angular dev server at `https://localhost:4
 ### GraphQL Code Generation
 
 The schema is committed (`src/FireGuardiansWebApp/schema.graphql`); the TypeScript code is generated from it and
-the `.graphql` files in `src/app/graphQL/` by `npm run codegen` (`@graphql-codegen` 8, `codegen.yml`) and is not
-committed. `prestart`, `prebuild`, `pretest` and `prelint` run it, so a fresh clone needs no manual step, and CI runs it as
-its own step after `npm ci`; an invalid document fails that step. To refresh the schema, export it from a tenant with the
-FireGuardians model, replace `schema.graphql` and commit it.
+the `.graphql` files in `src/app/graphQL/` (`@graphql-codegen` 8, `codegen.yml`) and is not committed. After cloning and
+after changing a `.graphql` file run `npm run codegen`; CI and the Docker build run it. To refresh the schema, export it
+from a tenant with the FireGuardians model, replace `schema.graphql` and commit it.
 
 ### Frontend Only
 
 ```bash
 cd src/FireGuardiansWebApp/ClientApp
 npm install
+npm run codegen    # Generate GraphQL types (after cloning and after changing a .graphql file)
 npm start          # Development server
 npm run build      # Production build
 npm test           # Run unit tests (Vitest, single run)
-npm run codegen    # Regenerate GraphQL types
+npm run lint       # ESLint
 ```
-
-There is no lint script and no ESLint configuration in this workspace.
 
 ### Unit Tests
 
