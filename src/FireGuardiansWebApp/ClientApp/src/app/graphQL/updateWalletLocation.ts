@@ -1,15 +1,19 @@
-import * as Types from './globalTypes';
+import type * as Types from './globalTypes';
 
 import { gql } from 'apollo-angular';
 import { Injectable } from '@angular/core';
 import * as Apollo from 'apollo-angular';
-export type UpdateWalletLocationMutationVariablesDto = Types.Exact<{
-  rtId: Types.Scalars['OctoObjectId']['input'];
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type UpdateWalletLocationMutationVariablesDto = Exact<{
+  rtId: string;
   position: Types.PositionInputDto;
 }>;
 
 
-export type UpdateWalletLocationMutationDto = { __typename?: 'OctoMutation', runtime?: { __typename?: 'Runtime', fireGuardiansWallets?: { __typename?: 'FireGuardiansWalletMutations', update?: Array<{ __typename?: 'FireGuardiansWallet', rtId: any, identityId: string, name: string, location?: { __typename?: 'RtGeospatialValueDto', point?: { __typename?: 'Point', coordinates?: { __typename?: 'Position', latitude: number, longitude: number } | null } | null } | null } | null> | null } | null } | null };
+export type UpdateWalletLocationMutationDto = { runtime: { __typename: 'Runtime', fireGuardiansWallets: { __typename: 'FireGuardiansWalletMutations', update: Array<{ __typename: 'FireGuardiansWallet', rtId: string, identityId: string, name: string, location: { __typename: 'RtGeospatialValueDto', point: { __typename: 'Point', coordinates: { __typename: 'Position', latitude: number, longitude: number } | null } | null } | null } | null> | null } | null } | null };
 
 export const UpdateWalletLocationDocumentDto = gql`
     mutation updateWalletLocation($rtId: OctoObjectId!, $position: PositionInput!) {

@@ -1,16 +1,18 @@
-import * as Types from './globalTypes';
-
 import { gql } from 'apollo-angular';
 import { Injectable } from '@angular/core';
 import * as Apollo from 'apollo-angular';
-export type CreateNotificationSubscriptionMutationVariablesDto = Types.Exact<{
-  endpoint: Types.Scalars['String']['input'];
-  config?: Types.InputMaybe<Types.Scalars['String']['input']>;
-  parentWalletRtId: Types.Scalars['OctoObjectId']['input'];
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type CreateNotificationSubscriptionMutationVariablesDto = Exact<{
+  endpoint: string;
+  config?: string | null | undefined;
+  parentWalletRtId: string;
 }>;
 
 
-export type CreateNotificationSubscriptionMutationDto = { __typename?: 'OctoMutation', runtime?: { __typename?: 'Runtime', fireGuardiansNotificationSubscriptions?: { __typename?: 'FireGuardiansNotificationSubscriptionMutations', create?: Array<{ __typename?: 'FireGuardiansNotificationSubscription', rtId: any, endpoint: string, subscriptionConfiguration?: string | null } | null> | null } | null } | null };
+export type CreateNotificationSubscriptionMutationDto = { runtime: { __typename: 'Runtime', fireGuardiansNotificationSubscriptions: { __typename: 'FireGuardiansNotificationSubscriptionMutations', create: Array<{ __typename: 'FireGuardiansNotificationSubscription', rtId: string, endpoint: string, subscriptionConfiguration: string | null } | null> | null } | null } | null };
 
 export const CreateNotificationSubscriptionDocumentDto = gql`
     mutation createNotificationSubscription($endpoint: String!, $config: String, $parentWalletRtId: OctoObjectId!) {

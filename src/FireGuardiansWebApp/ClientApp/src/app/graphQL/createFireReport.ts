@@ -1,16 +1,20 @@
-import * as Types from './globalTypes';
+import type * as Types from './globalTypes';
 
 import { gql } from 'apollo-angular';
 import { Injectable } from '@angular/core';
 import * as Apollo from 'apollo-angular';
-export type CreateFireReportMutationVariablesDto = Types.Exact<{
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type CreateFireReportMutationVariablesDto = Exact<{
   position: Types.PositionInputDto;
-  name: Types.Scalars['String']['input'];
-  description?: Types.InputMaybe<Types.Scalars['String']['input']>;
+  name: string;
+  description?: string | null | undefined;
 }>;
 
 
-export type CreateFireReportMutationDto = { __typename?: 'OctoMutation', runtime?: { __typename?: 'Runtime', fireGuardiansFireReports?: { __typename?: 'FireGuardiansFireReportMutations', create?: Array<{ __typename?: 'FireGuardiansFireReport', rtId: any, name: string, description?: string | null, location: { __typename?: 'RtGeospatialValueDto', point?: { __typename?: 'Point', coordinates?: { __typename?: 'Position', latitude: number, longitude: number, altitude?: number | null } | null } | null } } | null> | null } | null } | null };
+export type CreateFireReportMutationDto = { runtime: { __typename: 'Runtime', fireGuardiansFireReports: { __typename: 'FireGuardiansFireReportMutations', create: Array<{ __typename: 'FireGuardiansFireReport', rtId: string, name: string, description: string | null, location: { __typename: 'RtGeospatialValueDto', point: { __typename: 'Point', coordinates: { __typename: 'Position', latitude: number, longitude: number, altitude: number | null } | null } | null } } | null> | null } | null } | null };
 
 export const CreateFireReportDocumentDto = gql`
     mutation createFireReport($position: PositionInput!, $name: String!, $description: String) {

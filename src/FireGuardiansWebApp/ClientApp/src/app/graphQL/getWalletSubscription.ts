@@ -1,15 +1,17 @@
-import * as Types from './globalTypes';
-
 import { gql } from 'apollo-angular';
 import { Injectable } from '@angular/core';
 import * as Apollo from 'apollo-angular';
-export type GetWalletSubscriptionQueryVariablesDto = Types.Exact<{
-  walletRtId: Types.Scalars['OctoObjectId']['input'];
-  endpoint: Types.Scalars['SimpleScalar']['input'];
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type GetWalletSubscriptionQueryVariablesDto = Exact<{
+  walletRtId: string;
+  endpoint: any;
 }>;
 
 
-export type GetWalletSubscriptionQueryDto = { __typename?: 'OctoQuery', runtime?: { __typename?: 'RuntimeModelQuery', fireGuardiansWallet?: { __typename?: 'FireGuardiansWalletConnection', totalCount?: number | null, pageInfo?: { __typename?: 'PageInfo', endCursor?: string | null } | null, items?: Array<{ __typename?: 'FireGuardiansWallet', rtChangedDateTime?: any | null, name: string, children?: { __typename?: 'FireGuardiansWallet_ChildrenUnion', fireGuardiansNotificationSubscription?: { __typename?: 'FireGuardiansNotificationSubscriptionConnection', items?: Array<{ __typename?: 'FireGuardiansNotificationSubscription', rtId: any } | null> | null } | null } | null } | null> | null } | null } | null };
+export type GetWalletSubscriptionQueryDto = { runtime: { __typename: 'RuntimeModelQuery', fireGuardiansWallet: { __typename: 'FireGuardiansWalletConnection', totalCount: number | null, pageInfo: { __typename: 'PageInfo', endCursor: string | null } | null, items: Array<{ __typename: 'FireGuardiansWallet', rtChangedDateTime: any, name: string, children: { __typename: 'FireGuardiansWallet_ChildrenUnion', fireGuardiansNotificationSubscription: { __typename: 'FireGuardiansNotificationSubscriptionConnection', items: Array<{ __typename: 'FireGuardiansNotificationSubscription', rtId: string } | null> | null } | null } | null } | null> | null } | null } | null };
 
 export const GetWalletSubscriptionDocumentDto = gql`
     query getWalletSubscription($walletRtId: OctoObjectId!, $endpoint: SimpleScalar!) {

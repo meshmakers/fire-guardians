@@ -1,10 +1,5 @@
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
-export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string; }
@@ -18,7 +13,7 @@ export type Scalars = {
   /** A construction kit id of type CkEnumId. */
   CkEnumId: { input: string; output: string; }
   /** Identifies a construction kit model. */
-  CkModelId: { input: any; output: any; }
+  CkModelId: { input: string; output: string; }
   /** A construction kit id of type CkRecordId. */
   CkRecordId: { input: string; output: string; }
   /** A construction kit id of type CkTypeId. */
@@ -2835,7 +2830,6 @@ export type CkAttributeDto = {
   defaultValues?: Maybe<Array<Maybe<Scalars['SimpleScalar']['output']>>>;
   /** Optional description of the attribute. */
   description?: Maybe<Scalars['String']['output']>;
-  /** Optional flag that tells if an attribute is a data stream. */
   /** Optional meta data of the attribute. */
   metaData?: Maybe<Array<Maybe<CkAttributeMetaDataDto>>>;
 };
