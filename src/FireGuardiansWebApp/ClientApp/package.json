@@ -13,7 +13,7 @@
     "lint": "ng lint",
     "lint:fix": "ng lint --fix",
     "postinstall": "node src/environments/version.ts",
-    "codegen": "graphql-codegen --config codegen.yml"
+    "codegen": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 graphql-codegen --config codegen.yml"
   },
   "private": true,
   "dependencies": {

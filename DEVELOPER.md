@@ -632,15 +632,12 @@ dotnet build FireGuardians.sln -c Debug
 dotnet build FireGuardians.sln -c Release
 ```
 
-The `.csproj` build targets automatically run `npm install` in Debug mode, and `npm install`, `npm run codegen` and `npm run build` for publish.
+The `.csproj` build targets automatically run `npm install` in Debug mode and `npm run build` for publish.
 
 ### Run in Development
 
 ```bash
-cd src/FireGuardiansWebApp/ClientApp
-npm install
-npm run codegen
-cd ..
+cd src/FireGuardiansWebApp
 dotnet run
 ```
 
@@ -648,22 +645,27 @@ The ASP.NET Core SPA proxy serves the Angular dev server at `https://localhost:4
 
 ### GraphQL Code Generation
 
-The schema is committed (`src/FireGuardiansWebApp/schema.graphql`); the TypeScript code is generated from it and
-the `.graphql` files in `src/app/graphQL/` (`@graphql-codegen` 8, `codegen.yml`) and is not committed. After cloning and
-after changing a `.graphql` file run `npm run codegen`; CI and the Docker build run it. To refresh the schema, export it
-from a tenant with the FireGuardians model, replace `schema.graphql` and commit it.
+When GraphQL operations (`.graphql` files) are modified:
+
+```bash
+cd src/FireGuardiansWebApp/ClientApp
+npm run codegen
+```
+
+This runs `@graphql-codegen` using `codegen.yml` to regenerate TypeScript types and Angular services.
 
 ### Frontend Only
 
 ```bash
 cd src/FireGuardiansWebApp/ClientApp
 npm install
-npm run codegen    # Generate GraphQL types (after cloning and after changing a .graphql file)
 npm start          # Development server
 npm run build      # Production build
 npm test           # Run unit tests (Vitest, single run)
-npm run lint       # ESLint
+npm run codegen    # Regenerate GraphQL types
 ```
+
+There is no lint script and no ESLint configuration in this workspace.
 
 ### Unit Tests
 
@@ -763,7 +765,7 @@ The Azure Pipelines configuration (`devops-build/azure-pipelines.yml`) defines:
 2. **Set Version** — updates `.csproj` assembly info and `package.json` versions
 3. **Download CA** — installs private NuGet server certificate
 4. **Install Node.js** — pins 24.15.x for the Angular CLI
-5. **ClientApp Unit Tests** — `npm ci`, then `npm run codegen`, then Vitest with the JUnit reporter; the results are
+5. **ClientApp Unit Tests** — `npm ci`, then Vitest with the JUnit reporter; the results are
    published from `src/FireGuardiansWebApp/ClientApp/test-results/TESTS-junit.xml` under the
    run title *Unit Tests - Fire Guardians ClientApp*. The publish step runs on
    `succeededOrFailed()`, so failing tests still show up in the Tests tab, but the test step

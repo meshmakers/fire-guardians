@@ -9,7 +9,6 @@ generates:
     config:
       typesSuffix: Dto
       enumPrefix: false
-      onlyOperationTypes: true
       scalars: &scalars
         OctoObjectId: string
         CkAttributeId: string

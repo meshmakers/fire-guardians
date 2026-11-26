@@ -6,12 +6,10 @@ import {FormBuilder, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatFormField, MatLabel} from "@angular/material/form-field";
 import {MatInput} from "@angular/material/input";
 import {AbstractDetailsComponent} from "@meshmakers/shared-ui-legacy";
-import {CreateFireReportMutationVariablesDto} from "../graphQL/createFireReport";
+import {FireGuardiansFireReportDto} from "../graphQL/globalTypes";
 import {ActivatedRoute} from "@angular/router";
 import {MessageService} from "@meshmakers/shared-services";
 import {MatIcon} from "@angular/material/icon";
-
-type FireReportForm = Pick<CreateFireReportMutationVariablesDto, 'name' | 'description'>;
 
 @Component({
   selector: 'app-create-fire-report',
@@ -30,7 +28,7 @@ type FireReportForm = Pick<CreateFireReportMutationVariablesDto, 'name' | 'descr
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './create-fire-report.component.scss'
 })
-export class CreateFireReportComponent extends AbstractDetailsComponent<FireReportForm> {
+export class CreateFireReportComponent extends AbstractDetailsComponent<FireGuardiansFireReportDto> {
   private readonly id: string | null;
 
   constructor(
