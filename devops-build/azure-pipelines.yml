@@ -46,12 +46,11 @@ stages:
             inputs:
               script: 'npm ci'
               workingDirectory: '$(System.DefaultWorkingDirectory)/src/FireGuardiansWebApp/ClientApp'
-          # Validates the GraphQL documents against schema.graphql, then restores the committed generated code,
-          # so the tests and the Docker image use the reviewed code.
+          # Dry run: writes nothing, fails on an invalid GraphQL document or stale committed generated code.
           - task: CmdLine@2
             displayName: 'Check GraphQL documents against the schema'
             inputs:
-              script: 'npm run codegen && git checkout -- src/app/graphQL && git clean -fdq -- src/app/graphQL'
+              script: 'npm run codegen -- --check'
               workingDirectory: '$(System.DefaultWorkingDirectory)/src/FireGuardiansWebApp/ClientApp'
           - task: CmdLine@2
             displayName: 'Run ClientApp unit tests'
