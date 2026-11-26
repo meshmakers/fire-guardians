@@ -632,12 +632,15 @@ dotnet build FireGuardians.sln -c Debug
 dotnet build FireGuardians.sln -c Release
 ```
 
-The `.csproj` build targets automatically run `npm install` in Debug mode and `npm run build` for publish.
+The `.csproj` build targets automatically run `npm install` in Debug mode, and `npm install`, `npm run codegen` and `npm run build` for publish.
 
 ### Run in Development
 
 ```bash
-cd src/FireGuardiansWebApp
+cd src/FireGuardiansWebApp/ClientApp
+npm install
+npm run codegen
+cd ..
 dotnet run
 ```
 

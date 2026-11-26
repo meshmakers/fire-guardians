@@ -76,7 +76,10 @@ cd scripts
 ### 3. Run the Application
 
 ```bash
-cd src/FireGuardiansWebApp
+cd src/FireGuardiansWebApp/ClientApp
+npm install
+npm run codegen
+cd ..
 dotnet run
 ```
 
